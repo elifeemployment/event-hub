@@ -69,12 +69,11 @@ export default function Index() {
         <div className="container">
           <div className="mx-auto max-w-3xl text-center animate-fade-in">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground">സംരംഭക മേള 2025 -26
-<span className="block mt-2 gradient-text">കൂട്ടായ്മ </span>
+            <span className="block mt-2 gradient-text">കൂട്ടായ്മ </span>
             </h1>
-            <p className="mt-6 text-lg text-muted-foreground max-w-2xl mx-auto">
-              Streamline your event operations with comprehensive tools for scheduling, 
-              team coordination, vendor management, and financial tracking.
-            </p>
+            <p className="mt-6 text-lg text-muted-foreground max-w-2xl mx-auto">2030 ഓടെ കേരളത്തെ
+ഒരു വലിയ പ്രൊഡക്ഷൻ ഹബ്ബ് ആക്കി മാറ്റണം —
+ഇത് ഒരു ലക്ഷ്യംമാത്രമല്ല… ഒരു പ്രസ്ഥാനം ആണ്.</p>
           </div>
         </div>
         
