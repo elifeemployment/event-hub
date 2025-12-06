@@ -335,19 +335,36 @@ export default function Accounts() {
                     </select>
                   </div>
                   {participantPayment.stallId && (() => {
+                    // Total billed from billing transactions
                     const stallBilledAmount = billingTransactions
                       .filter((t: any) => t.stall_id === participantPayment.stallId)
                       .reduce((sum: number, t: any) => sum + (t.total || 0), 0);
-                    const stallPaidAmount = payments
-                      .filter((p: any) => p.stall_id === participantPayment.stallId && p.payment_type === "participant" && p.category !== "stall_booking")
-                      .reduce((sum: number, p: any) => sum + (p.total_billed || 0), 0);
-                    const stallBalance = stallBilledAmount - stallPaidAmount;
+                    // Amount paid TO stall (excluding registration fee - non-refundable)
+                    const stallPaidToStall = payments
+                      .filter((p: any) => 
+                        p.stall_id === participantPayment.stallId && 
+                        p.payment_type === "participant" && 
+                        !(p.narration && p.narration.toLowerCase().includes("registration fee"))
+                      )
+                      .reduce((sum: number, p: any) => sum + (p.amount_paid || 0), 0);
+                    const stallBalance = stallBilledAmount - stallPaidToStall;
+                    // Stall registration fee (non-refundable)
+                    const stallFee = payments
+                      .filter((p: any) => 
+                        p.stall_id === participantPayment.stallId && 
+                        p.narration && p.narration.toLowerCase().includes("registration fee")
+                      )
+                      .reduce((sum: number, p: any) => sum + (p.amount_paid || 0), 0);
                     return (
-                      <div className="p-4 bg-muted rounded-lg">
-                        <div className="grid grid-cols-2 gap-4 text-center">
+                      <div className="md:col-span-2 p-4 bg-muted rounded-lg space-y-3">
+                        <div className="grid grid-cols-3 gap-4 text-center">
                           <div>
                             <p className="text-sm text-muted-foreground">Billed Amount</p>
                             <p className="text-lg font-semibold text-foreground">₹{stallBilledAmount.toLocaleString()}</p>
+                          </div>
+                          <div>
+                            <p className="text-sm text-muted-foreground">Amount Paid</p>
+                            <p className="text-lg font-semibold text-success">₹{stallPaidToStall.toLocaleString()}</p>
                           </div>
                           <div>
                             <p className="text-sm text-muted-foreground">Bill Balance</p>
@@ -356,6 +373,11 @@ export default function Accounts() {
                             </p>
                           </div>
                         </div>
+                        {stallFee > 0 && (
+                          <div className="pt-2 border-t border-border text-center">
+                            <p className="text-xs text-muted-foreground">Stall Fee Paid: ₹{stallFee.toLocaleString()} <span className="text-warning">(Non-refundable)</span></p>
+                          </div>
+                        )}
                       </div>
                     );
                   })()}
