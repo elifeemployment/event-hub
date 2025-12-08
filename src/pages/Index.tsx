@@ -1,11 +1,8 @@
 import { PageLayout } from "@/components/layout/PageLayout";
 import { ModuleCard } from "@/components/dashboard/ModuleCard";
-import { StatsCard } from "@/components/dashboard/StatsCard";
-import { CalendarDays, Users, UtensilsCrossed, Receipt, Wallet, TrendingUp, UserCheck, Store, Camera } from "lucide-react";
-import { useStallAuth } from "@/contexts/StallAuthContext";
-import { useAdminAuth } from "@/contexts/AdminAuthContext";
+import { CalendarDays, Camera } from "lucide-react";
 
-const publicModules = [
+const modules = [
   {
     title: "Program Scheduling",
     description: "Manage event programs, assign dates, times, and venues with location mapping.",
@@ -22,69 +19,7 @@ const publicModules = [
   }
 ];
 
-const protectedModules = [
-  {
-    title: "Team Management",
-    description: "Register officials, manage volunteers, allocate duties and plan shifts.",
-    icon: Users,
-    href: "/team",
-    color: "info" as const
-  },
-  {
-    title: "Food Court & Stalls",
-    description: "Handle stall bookings, participant registration, and product listings.",
-    icon: UtensilsCrossed,
-    href: "/food-court",
-    color: "warning" as const
-  },
-  {
-    title: "Billing & Registrations",
-    description: "Process billing, generate receipts, and manage all registrations.",
-    icon: Receipt,
-    href: "/billing",
-    color: "success" as const
-  },
-  {
-    title: "Accounts & Cash Flow",
-    description: "Track complete cash flow, collections, payments, and balances.",
-    icon: Wallet,
-    href: "/accounts",
-    color: "accent" as const
-  }
-];
-
-const stats = [
-  {
-    title: "Total Programs",
-    value: 24,
-    icon: CalendarDays,
-    trend: { value: 12, positive: true }
-  },
-  {
-    title: "Team Members",
-    value: 156,
-    icon: UserCheck,
-    trend: { value: 8, positive: true }
-  },
-  {
-    title: "Active Stalls",
-    value: 42,
-    icon: Store
-  },
-  {
-    title: "Revenue",
-    value: "₹2.4L",
-    icon: TrendingUp,
-    trend: { value: 18, positive: true }
-  }
-];
-
 export default function Index() {
-  const { stall } = useStallAuth();
-  const { admin } = useAdminAuth();
-  
-  const isAuthenticated = !!stall || !!admin;
-  const modules = isAuthenticated ? [...publicModules, ...protectedModules] : publicModules;
 
   return (
     <PageLayout>
@@ -108,25 +43,14 @@ export default function Index() {
         <div className="absolute -bottom-40 -left-40 h-80 w-80 rounded-full bg-primary/10 blur-3xl" />
       </section>
 
-      {/* Stats Section - Only for authenticated users */}
-      {isAuthenticated && (
-        <section className="container -mt-8 relative z-10">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            {stats.map(stat => (
-              <StatsCard key={stat.title} {...stat} className="animate-slide-up" />
-            ))}
-          </div>
-        </section>
-      )}
-
       {/* Modules Section */}
       <section className="container py-12 md:py-16">
         <div className="mb-8">
           <h2 className="text-2xl md:text-3xl font-bold text-foreground">
-            {isAuthenticated ? "Management Modules" : "Public Features"}
+            Features
           </h2>
           <p className="mt-2 text-muted-foreground">
-            {isAuthenticated ? "Select a module to get started" : "Login to access all features"}
+            Select a feature to get started
           </p>
         </div>
         
