@@ -1,8 +1,10 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
-import { Video, Image, FileText } from "lucide-react";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Video, Image, FileText, X } from "lucide-react";
 
 interface SurveyContent {
   id: string;
@@ -14,13 +16,18 @@ interface SurveyContent {
   is_active: boolean;
 }
 
-function getYouTubeEmbedUrl(url: string): string | null {
+function getYouTubeEmbedUrl(url: string, autoplay: boolean = false): string | null {
   const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
   const match = url.match(regExp);
-  return match && match[2].length === 11 ? `https://www.youtube.com/embed/${match[2]}` : null;
+  if (match && match[2].length === 11) {
+    return `https://www.youtube.com/embed/${match[2]}${autoplay ? '?autoplay=1&mute=1' : ''}`;
+  }
+  return null;
 }
 
 export function SurveyView() {
+  const [fullscreenPoster, setFullscreenPoster] = useState<SurveyContent | null>(null);
+
   const { data: videos } = useQuery({
     queryKey: ['survey-content', 'video'],
     queryFn: async () => {
@@ -79,7 +86,7 @@ export function SurveyView() {
         <CardContent className="space-y-4">
           {videos && videos.length > 0 ? (
             videos.map((video) => {
-              const embedUrl = video.content_url ? getYouTubeEmbedUrl(video.content_url) : null;
+              const embedUrl = video.content_url ? getYouTubeEmbedUrl(video.content_url, true) : null;
               return (
                 <div key={video.id}>
                   <h4 className="font-medium mb-2">{video.title}</h4>
@@ -96,6 +103,9 @@ export function SurveyView() {
                       <video 
                         src={video.content_url} 
                         controls 
+                        autoPlay
+                        muted
+                        playsInline
                         className="w-full h-full object-cover"
                       />
                     ) : (
@@ -130,16 +140,20 @@ export function SurveyView() {
             Poster Gallery
           </CardTitle>
           <CardDescription>
-            View our event posters and promotional materials
+            Tap on any poster to view in fullscreen
           </CardDescription>
         </CardHeader>
         <CardContent>
           {posters && posters.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {posters.map((poster) => (
-                <div key={poster.id}>
+                <div 
+                  key={poster.id} 
+                  className="cursor-pointer"
+                  onClick={() => poster.content_url && setFullscreenPoster(poster)}
+                >
                   <h4 className="font-medium mb-2 text-sm">{poster.title}</h4>
-                  <AspectRatio ratio={3 / 4} className="bg-muted rounded-lg overflow-hidden">
+                  <AspectRatio ratio={3 / 4} className="bg-muted rounded-lg overflow-hidden hover:ring-2 hover:ring-primary transition-all">
                     {poster.content_url ? (
                       <img
                         src={poster.content_url}
@@ -230,6 +244,27 @@ export function SurveyView() {
           )}
         </CardContent>
       </Card>
+
+      {/* Fullscreen Poster Dialog */}
+      <Dialog open={!!fullscreenPoster} onOpenChange={(open) => !open && setFullscreenPoster(null)}>
+        <DialogContent className="max-w-[95vw] max-h-[95vh] p-0 bg-black/95 border-none">
+          <button
+            onClick={() => setFullscreenPoster(null)}
+            className="absolute top-4 right-4 z-50 p-2 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors"
+          >
+            <X className="h-6 w-6" />
+          </button>
+          {fullscreenPoster?.content_url && (
+            <div className="flex items-center justify-center w-full h-full p-4">
+              <img
+                src={fullscreenPoster.content_url}
+                alt={fullscreenPoster.title}
+                className="max-w-full max-h-[90vh] object-contain"
+              />
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
